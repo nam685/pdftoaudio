@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required web files exist
+        run: |
+          for f in web/index.html web/style.css web/app.js; do
+            [ -f "$f" ] || { echo "Missing: $f"; exit 1; }
+          done
+          echo "All web files present."
+
+      - name: Validate HTML (basic)
+        run: |
+          # Ensure no obvious syntax errors — checks DOCTYPE, closing tags
+          grep -q '<!DOCTYPE html>' web/index.html || { echo "Missing DOCTYPE"; exit 1; }
+          grep -q '</html>' web/index.html         || { echo "Missing </html>"; exit 1; }
+          echo "HTML looks OK."
+
+      - name: Check JS for syntax errors
+        run: node --check web/app.js && echo "JS syntax OK."

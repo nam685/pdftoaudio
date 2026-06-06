@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#131313"/>
+  <meta name="description" content="Listen to any PDF — runs entirely in your browser, nothing is uploaded."/>
+  <title>pdf-audio · nam685</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>"/>
+</head>
+<body>
+
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <div class="app">
+
+    <header>
+      <a href="https://nam685.de" class="back-link">← nam685.de</a>
+      <h1><span class="accent">//</span> pdf-audio</h1>
+      <p class="subtitle">listen to any PDF · runs entirely in your browser</p>
+      <div class="header-line" aria-hidden="true"></div>
+    </header>
+
+    <main>
+
+      <!-- Step 1 -->
+      <section class="card" id="fileCard">
+        <div class="card-label">01 · FILE</div>
+
+        <label class="drop-zone" id="dropZone" for="fileInput">
+          <div class="drop-icon">[ PDF ]</div>
+          <span id="dropLabel">tap to choose a file · or drag &amp; drop</span>
+          <input type="file" id="fileInput" accept="application/pdf"/>
+        </label>
+
+        <p id="fileName" class="file-name" hidden></p>
+        <p id="cacheStatus" class="cache-status" hidden></p>
+
+        <button id="btnPreprocess" class="btn btn-outline" disabled>
+          preprocess &amp; save
+        </button>
+        <p class="hint">
+          Run once per PDF — strips page numbers, hyphenated line-breaks, URLs.
+          Saves clean text to your browser (IndexedDB) for instant future playback.
+        </p>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="card">
+        <div class="card-label">02 · OPTIONS</div>
+
+        <div class="row">
+          <label class="field">
+            <span>start page</span>
+            <input type="number" id="startPage" min="1" placeholder="1"/>
+          </label>
+          <label class="field">
+            <span>end page</span>
+            <input type="number" id="endPage" min="1" placeholder="last"/>
+          </label>
+        </div>
+        <p class="hint">Leave blank for full document. Ignored when using cached text.</p>
+
+        <label class="field" style="margin-top:1.25rem">
+          <span>speed <span id="speedLabel" class="accent">1.0×</span></span>
+          <input type="range" id="speedSlider" min="0.5" max="2.5" step="0.1" value="1.0"/>
+          <div class="range-labels"><span>0.5×</span><span>2.5×</span></div>
+        </label>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="card">
+        <div class="card-label">03 · PLAYBACK</div>
+
+        <div class="controls">
+          <button id="btnPlay" class="btn btn-primary" disabled>▶ play</button>
+          <button id="btnStop" class="btn btn-ghost" disabled>■ stop</button>
+        </div>
+
+        <div id="progressWrap" class="progress-wrap" hidden>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-fill"></div>
+          </div>
+          <span id="progressText" class="progress-text"></span>
+        </div>
+
+        <p id="status" class="status-text">select a PDF to get started.</p>
+      </section>
+
+    </main>
+
+    <footer>
+      <div class="footer-line" aria-hidden="true"></div>
+      <p>nothing is uploaded · all processing happens in your browser</p>
+      <p><a href="https://github.com/nam685/pdftoaudio">source</a></p>
+    </footer>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

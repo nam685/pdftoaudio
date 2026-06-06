@@ -1,0 +1,36 @@
+name: Deploy web app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ secrets.DEPLOY_HOST }}
+          username:    nam
+          key:         ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            DEST=~/www/pdf-audio
+            mkdir -p "$DEST"
+
+            # Pull latest web files from the repo
+            cd ~/pdftoaudio-deploy 2>/dev/null || git clone https://github.com/nam685/pdftoaudio.git ~/pdftoaudio-deploy
+            cd ~/pdftoaudio-deploy
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Sync only the web/ directory to the serve root
+            rsync -a --delete web/ "$DEST/"
+            echo "Deployed to $DEST"
