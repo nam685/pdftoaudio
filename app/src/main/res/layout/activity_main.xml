@@ -65,10 +65,31 @@
                     android:maxLines="2"
                     android:ellipsize="middle"/>
 
+                <!-- Cache status -->
+                <TextView
+                    android:id="@+id/tvCacheStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/primary"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"/>
+
+                <!-- Preprocess button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPreprocess"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Preprocess &amp; Save"
+                    android:textSize="14sp"
+                    android:enabled="false"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Page range card -->
+        <!-- Page range card (only relevant when playing without cache) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,8 +106,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Page Range (optional — leave blank for all)"
-                    android:textSize="13sp"
+                    android:text="Page range for on-the-fly playback (ignored when cached)"
+                    android:textSize="12sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginBottom="10dp"/>
 
@@ -102,7 +123,6 @@
                         android:layout_marginEnd="8dp"
                         android:hint="Start page"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etStartPage"
                             android:layout_width="match_parent"
@@ -116,7 +136,6 @@
                         android:layout_weight="1"
                         android:hint="End page"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEndPage"
                             android:layout_width="match_parent"
@@ -261,15 +280,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Hint -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="💡 Audio continues playing with the screen off. Use the notification to pause or stop."
+            android:text="Tip: Preprocess once to save clean text. Audio plays in background with screen off — use the notification to pause/stop."
             android:textSize="12sp"
             android:textColor="@color/text_secondary"
-            android:layout_marginTop="4dp"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:layout_marginTop="4dp"/>
 
     </LinearLayout>
 </ScrollView>

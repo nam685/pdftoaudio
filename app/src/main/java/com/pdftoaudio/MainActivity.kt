@@ -21,9 +21,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tvFileName: TextView
     private lateinit var tvStatus: TextView
+    private lateinit var tvCacheStatus: TextView
     private lateinit var etStartPage: TextInputEditText
     private lateinit var etEndPage: TextInputEditText
     private lateinit var btnPickFile: MaterialButton
+    private lateinit var btnPreprocess: MaterialButton
     private lateinit var btnPlayPause: MaterialButton
     private lateinit var btnStop: MaterialButton
     private lateinit var seekBarSpeed: SeekBar
@@ -49,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun onStateChanged(isPlaying: Boolean, isPaused: Boolean) {
+        override fun onStateChanged(isPlaying: Boolean, isPaused: Boolean, isProcessing: Boolean) {
             runOnUiThread { syncControls() }
         }
     }
@@ -75,7 +77,8 @@ class MainActivity : AppCompatActivity() {
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             selectedUri = uri
             tvFileName.text = getDisplayName(uri)
-            tvStatus.text = "Ready — tap Play to start"
+            tvStatus.text = "File selected"
+            updateCacheStatus()
             syncControls()
         }
     }
@@ -86,9 +89,11 @@ class MainActivity : AppCompatActivity() {
 
         tvFileName = findViewById(R.id.tvFileName)
         tvStatus = findViewById(R.id.tvStatus)
+        tvCacheStatus = findViewById(R.id.tvCacheStatus)
         etStartPage = findViewById(R.id.etStartPage)
         etEndPage = findViewById(R.id.etEndPage)
         btnPickFile = findViewById(R.id.btnPickFile)
+        btnPreprocess = findViewById(R.id.btnPreprocess)
         btnPlayPause = findViewById(R.id.btnPlayPause)
         btnStop = findViewById(R.id.btnStop)
         seekBarSpeed = findViewById(R.id.seekBarSpeed)
@@ -102,6 +107,16 @@ class MainActivity : AppCompatActivity() {
 
         btnPickFile.setOnClickListener {
             filePicker.launch(arrayOf("application/pdf"))
+        }
+
+        btnPreprocess.setOnClickListener {
+            val svc = ttsService ?: return@setOnClickListener
+            val uri = selectedUri ?: return@setOnClickListener
+            svc.preprocessAndSave(this, uri) { success, message ->
+                tvStatus.text = message
+                if (success) updateCacheStatus()
+                syncControls()
+            }
         }
 
         btnPlayPause.setOnClickListener {
@@ -161,17 +176,30 @@ class MainActivity : AppCompatActivity() {
         val hasFile = selectedUri != null
         val playing = svc?.isPlaying == true
         val paused = svc?.isPaused == true
+        val processing = svc?.isProcessing == true
 
-        btnPlayPause.isEnabled = hasFile || playing || paused
-        btnStop.isEnabled = playing || paused
+        btnPreprocess.isEnabled = hasFile && !processing && !playing
+        btnPreprocess.text = if (processing) "Processing…" else "Preprocess & Save"
+
+        btnPlayPause.isEnabled = (hasFile || playing || paused) && !processing
+        btnStop.isEnabled = (playing || paused) && !processing
+
         btnPlayPause.text = when {
             playing && !paused -> "⏸ Pause"
             paused -> "▶ Resume"
             else -> "▶ Play"
         }
+    }
 
-        if (svc != null && svc.isPlaying) {
-            layoutControls.alpha = 1f
+    private fun updateCacheStatus() {
+        val uri = selectedUri ?: return
+        if (PdfExtractor.hasCached(this, uri)) {
+            val kb = PdfExtractor.cachedSizeKb(this, uri)
+            tvCacheStatus.text = "Preprocessed text cached (${kb} KB) — Play will use this"
+            tvCacheStatus.visibility = View.VISIBLE
+        } else {
+            tvCacheStatus.text = "No cache — tap Preprocess & Save first for best results"
+            tvCacheStatus.visibility = View.VISIBLE
         }
     }
 
