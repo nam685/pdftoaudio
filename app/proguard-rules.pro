@@ -1,0 +1,2 @@
+-keep class com.tom_roush.** { *; }
+-dontwarn com.tom_roush.**
